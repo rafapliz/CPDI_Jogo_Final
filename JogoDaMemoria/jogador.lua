@@ -32,13 +32,15 @@ caixaDeTexto.placeholder = "Digite seu nome"
 sceneGroup:insert(caixaDeTexto)
 
 local borda = display.newRect(caixaDeTexto.x, caixaDeTexto.y, caixaDeTexto.width + 4, caixaDeTexto.height + 4)
-borda:setFillColor(0, 0, 0, 0) 
-borda.strokeWidth = 3 
-borda:setStrokeColor(0, 0, 0) 
+borda:setFillColor(0, 0, 0, 0) -- Defina a cor de preenchimento para transparente
+borda.strokeWidth = 3 -- Largura da borda
+borda:setStrokeColor(0, 0, 0) -- Cor da borda (preto)
 sceneGroup:insert(borda)
 
+-- Variável para armazenar o nome do jogador
 local nomeJogador = ""
 
+-- Função para lidar com o clique no botão de salvar
 local function salvarNome(event)
     if event.phase == "ended" then
         -- Armazena o texto da caixa de texto na variável nomeJogador
@@ -54,8 +56,14 @@ end
 local botaoSalvar = display.newImageRect (sceneGroup, "imagens/play.png", 315/2, 96/2, native.systemFont, 44)
 botaoSalvar.x, botaoSalvar.y = display.contentCenterX, 240
 botaoSalvar:addEventListener("touch", salvarNome)
+	
+
+-- local menu = display.newImageRect (sceneGroup, "imagens/menu.png", 315/2, 96/2)
+-- menu.x, menu.y = display.contentCenterX - 200, 240
+-- menu:addEventListener("tap", gotoMenu)
 
 end
+
 
 -- show()
 function scene:show( event )
@@ -64,12 +72,14 @@ function scene:show( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-	
+		-- Code here runs when the scene is still off screen (but is about to come on screen)
 print(nomeJogador)
 	elseif ( phase == "did" ) then
+		-- Code here runs when the scene is entirely on screen
 
 	end
 end
+
 
 -- hide()
 function scene:hide( event )
@@ -78,21 +88,27 @@ function scene:hide( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		
+		-- Code here runs when the scene is on screen (but is about to go off screen)
 print(nomeJogador)
-	elseif ( phase == "did" ) then		
+	elseif ( phase == "did" ) then
+		-- Code here runs immediately after the scene goes entirely off screen
+		
+		
 		
 		composer.removeScene("jogador")
 
 	end
 end
 
+
 -- destroy()
 function scene:destroy( event )
 
 	local sceneGroup = self.view
+	-- Code here runs prior to the removal of scene's view
 
 end
+
 
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners

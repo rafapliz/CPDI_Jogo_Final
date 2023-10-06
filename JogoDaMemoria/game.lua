@@ -2,6 +2,11 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
+local SomErro = audio.loadSound ("audio/erro.mp3")
+local SomAcertou = audio.loadSound ("audio/acertou.mp3")
+local SomVirarCarta = audio.loadSound ("audio/virarcarta.mp3")
+local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
+
 local acertos = 0
 -- função voltar para menu
 local function gotoGame()
@@ -14,6 +19,8 @@ end
 local function gotoRecordes ()
 	composer.gotoScene ("recordes", {time = 800, effect = "crossFade"})
 end
+
+local jogoEmAndamento = false
 -- Lista de imagens para as cartas
 local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10" }
 -- Número de colunas e linhas do tabuleiro
@@ -32,11 +39,26 @@ local tabuleiro
 local pontos = 0
 
 local recordes = 0
--- Variável que representa o numero de tentativas inicial
+-- -- Variável que representa o numero de tentativas inicial
+-- local tentativas = 10
+-- Texto do placar
 
 local cartasRestantes = 20
 
 local placarText
+
+local function virarTodasAsCartas()
+    for i = 1, tabuleiro.numChildren do
+        local carta = tabuleiro[i]
+        carta:virar()
+    end
+    timer.performWithDelay(3000, function()
+        for i = 1, tabuleiro.numChildren do
+            local carta = tabuleiro[i]
+            carta:reset()
+        end
+    end)
+end
 
 -- Função para embaralhar uma tabela
 local function embaralhar(tabela)
@@ -71,6 +93,7 @@ local function criarCarta(x, y, frenteImagem, atrasImagem)
     function carta:virar()
         if not self.virada then
             self.virada = true
+            
             transition.to(self, { time = 200, xScale = 0.1, onComplete = function()
                 back.isVisible = false
                 display.newImageRect(self, self.frenteImagem, larguraCarta, alturaCarta)
@@ -86,6 +109,7 @@ local function criarCarta(x, y, frenteImagem, atrasImagem)
     end
     -- Adiciona um evento de toque para a carta
     carta:addEventListener("tap", function(event)
+        audio.play (SomVirarCarta)
         carta:virar()
     end)
 
@@ -218,6 +242,7 @@ local function checar()
 
         if saoIguais then
             -- Se forem iguais, aumenta os pontos e verifica a vitória
+            audio.play (SomAcertou)
             acertos = acertos + 1 
             pontos = pontos + 10
             placarText.text = " " .. pontos
@@ -251,6 +276,7 @@ local function checar()
                 virar = true
             end)
         else
+            audio.play (SomErro)
             -- Reverte as cartas após um pequeno atraso e diminuir as tentativas
             timer.performWithDelay(1500, function()
                 reverterCartas()
@@ -274,6 +300,7 @@ end
 
 
 
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -283,6 +310,7 @@ function scene:create(event)
     
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
+    audio.play (SomEmbaralhar)
 
     local bg = display.newImageRect (sceneGroup, "imagens/bg.png", 1920/2.7, 1080/3.4)
     bg.x = display.contentCenterX
@@ -292,6 +320,7 @@ function scene:create(event)
     tabuleiro:addEventListener("tap", onBoardTap)
     sceneGroup:insert(tabuleiro)
 
+    virarTodasAsCartas()
 
     local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
     fundo.x, fundo.y = 30, display.contentCenterY + 80
@@ -326,7 +355,6 @@ function scene:show(event)
         -- tentativasText.text = " " .. tentativas
     end
 end
-
 
 -- hide()
 function scene:hide( event )

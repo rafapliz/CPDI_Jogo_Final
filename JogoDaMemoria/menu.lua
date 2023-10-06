@@ -32,15 +32,15 @@ function scene:create(event)
    end
 end
 
-function scene:show( event ) 
+function scene:show( event ) -- Imediatamente antes ou depois da cena
 
 	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		
+		-- Code here runs when the scene is still off screen (but is about to come on screen)
 		local sceneGroup = self.view
-		
+		-- Code here runs when the scene is first created but has not yet appeared on screen
 		local bg2 = display.newImageRect (sceneGroup, "imagens/bg2.png",1024/1.4, 534/1.4 	)
 		bg2.x = display.contentCenterX
 		bg2.y = display.contentCenterY + 5
@@ -65,23 +65,25 @@ function scene:show( event )
 		play:addEventListener("tap", gotoJogador)
 		recordes:addEventListener("tap", gotoRecordes)
 	elseif ( phase == "did" ) then
-		
+		-- Code here runs when the scene is entirely on screen
 	end
 end
 
-function scene:hide( event ) 
+function scene:hide( event ) -- Imediatamente antes ou depois que a cena sair da tela
 
 	local sceneGroup = self.view
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		
+		-- Code here runs when the scene is on screen (but is about to go off screen)
 
 	elseif ( phase == "did" ) then
-		
+		-- Code here runs immediately after the scene goes entirely off screen
 		composer.removeScene("menu")
 	end
 end
+
+
 
 function scene:destroy( event )
 
@@ -89,6 +91,7 @@ function scene:destroy( event )
 	
     
 end
+
 
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
