@@ -35,8 +35,8 @@ function scene:create( event )
     menu:addEventListener ("tap", gotoMenu)
     local linkBruno = display.newText {
         text = "Linkedin.com/JoseBrunoReis",
-        x = centerX -42,
-        y = centerY + 37,
+        x = centerX - 42,
+        y = centerY - 43,
         fontSize = 14,
       
     }
@@ -49,27 +49,11 @@ function scene:create( event )
     end
     
     linkBruno:addEventListener("touch", openBruno) 
-
-    local linkDani = display.newText {
-        text = "Linkedin.com/DanielLimaMendes",
-        x = centerX - 34,
-        y = centerY - 62,
-        fontSize = 14,
-      
-    }
-    linkDani:setFillColor(1) -- Cor branca
-    sceneGroup: insert(linkDani)
-
-    local function openDani(event)
-        if event.phase == "ended" then
-            system.openURL("http://www.linkedin.com/in/")
-        end
-    end
-    
+       
     local linkRafael = display.newText {
         text = "Linkedin.com/RafaelPereiraDeLiz",
         x = centerX - 34,
-        y = centerY + 127,
+        y = centerY + 73,
         fontSize = 14,
        
     }
@@ -127,7 +111,7 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 -- O código aqui é executado antes da remoção da visualização da cena
-    
+  
 end
 
 

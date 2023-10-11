@@ -8,7 +8,6 @@ local SomVirarCarta = audio.loadSound ("audio/virarcarta.mp3")
 local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
 
 local acertos = 0
--- função voltar para menu
 local function gotoGame()
 	composer.gotoScene ("game", {time = 800, effect = "crossFade"})
 end
@@ -20,15 +19,11 @@ local function gotoRecordes ()
 	composer.gotoScene ("recordes", {time = 800, effect = "crossFade"})
 end
 
-local function gotoGame2 ()
-	composer.gotoScene ("game2", {time = 800, effect = "crossFade"})
-end
-
 local jogoEmAndamento = false
 -- Lista de imagens para as cartas
-local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10" }
+local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10", "card11", "card12", "card13", "card14", "card15"}
 -- Número de colunas e linhas do tabuleiro
-local numCols, numLinhas = 2, 2
+local numCols, numLinhas = 7, 4
 -- Espaçamento entre as cartas
 local distancia = 2
 -- Largura e altura de cada carta
@@ -47,7 +42,7 @@ local recordes = 0
 -- local tentativas = 10
 -- Texto do placar
 
-local cartasRestantes = 4
+local cartasRestantes = 20
 
 local placarText
 
@@ -143,8 +138,8 @@ local function criarTab()
     -- Calcula o tamanho total do tabuleiro
     local larguraTabuleiro, alturaTabuleiro = tamanhoTabuleiro()
     -- Posiciona o tabuleiro a partir do centro
-    local startX = (display.actualContentWidth - larguraTabuleiro) / 2  + 40
-    local startY = (display.actualContentHeight - alturaTabuleiro) / 2 + 40
+    local startX = (display.actualContentWidth - larguraTabuleiro) / 2 - 5
+    local startY = (display.actualContentHeight - alturaTabuleiro) / 2 + 36
     -- Gera posições aleatórias para as cartas no tabuleiro
     local posicoes = {}
     for i = 1, numLinhas do
@@ -159,12 +154,12 @@ local function criarTab()
         for j = 1, 2 do
             local indice = (i - 1) * 2 + j
 
-            if currentImageFolder == "imagens" then
-                carta = criarCarta(posicoes[indice][1], posicoes[indice][2], "imagens/"..cartas[i]..".png", "imagens/bg-carta.png")
-                currentImageFolder = "imagens2"
+            if currentImageFolder == "imagensp" then
+                carta = criarCarta(posicoes[indice][1], posicoes[indice][2], "imagensp/"..cartas[i]..".png", "imagens/bg-carta.png")
+                currentImageFolder = "imagens2p"
             else
-                carta = criarCarta(posicoes[indice][1], posicoes[indice][2], "imagens2/"..cartas[i]..".png", "imagens/bg-carta.png")
-                currentImageFolder = "imagens"
+                carta = criarCarta(posicoes[indice][1], posicoes[indice][2], "imagens2p/"..cartas[i]..".png", "imagens/bg-carta.png")
+                currentImageFolder = "imagensp"
             end
 
             grupoTab:insert(carta)
@@ -184,9 +179,8 @@ if cartasRestantes == 0 then
 recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
     
-    timer.performWithDelay(3000, function()    
-        gotoGame2()
-    end)
+    --composer.setVariable ("name", nomeJogador)
+    composer.gotoScene ("game2", {time=800, effect="crossFade"})
 
 end
 
@@ -257,7 +251,7 @@ local function checar()
                 imagemAcertoPrata.x = display.contentCenterX-200
                 imagemAcertoPrata.y = display.contentCenterY
                 pontos = pontos + 5
-                timer.performWithDelay(2000, function()
+                timer.performWithDelay(3000, function()
                     display.remove(imagemAcertoPrata)
                 end)
             end
@@ -267,7 +261,7 @@ local function checar()
                 imagemAcertoOuro.x = display.contentCenterX-200
                 imagemAcertoOuro.y = display.contentCenterY
                 pontos = pontos + 10
-                timer.performWithDelay(2000, function()
+                timer.performWithDelay(3000, function()
                     display.remove(imagemAcertoOuro)
                 end)
             end
@@ -317,8 +311,8 @@ function scene:create(event)
     -- Code here runs when the scene is first created but has not yet appeared on screen
     audio.play (SomEmbaralhar)
 
-    local bg = display.newImageRect (sceneGroup, "imagens/bg.png", 1920/2.7, 1080/3.4)
-    bg.x = display.contentCenterX
+    local bg = display.newImageRect (sceneGroup, "imagens/bg3.png", 1920/2.7, 1080/3.4)
+    bg.x = display.contentCenterX -2 
     bg.y = display.contentCenterY 
 
     tabuleiro = criarTab()
@@ -327,20 +321,20 @@ function scene:create(event)
 
     virarTodasAsCartas()
 
-    local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
-    fundo.x, fundo.y = 30, display.contentCenterY + 80
+    local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2.5, 96/2.5)
+    fundo.x, fundo.y = -30, display.contentCenterY + 80
    
-    placarText = display.newText(sceneGroup, " " .. pontos, 75, display.contentCenterY + 80, native.systemFont, 20)
+    placarText = display.newText(sceneGroup, " " .. pontos, 5, display.contentCenterY + 80, native.systemFont, 15)
     placarText:setFillColor(0, 0, 0)
 
     -- tentativasText = display.newText(sceneGroup, " " .. tentativas, 220, 15.5, native.systemFont, 20)
 
-    local menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2, 96/2)
-    menu.x = 30    menu.y = display.contentCenterY - 90
+    local menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
+    menu.x = -30   menu.y = display.contentCenterY - 90
     menu:addEventListener ("tap", gotoMenu)
 
-    local recordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2, 96/2)
-    recordes.x = 30
+    local recordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
+    recordes.x = -30
     recordes.y = display.contentCenterY - 40
     recordes:addEventListener ("tap", gotoRecordes)
 
@@ -381,7 +375,7 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-  
+
 end
 
 
