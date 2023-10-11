@@ -38,11 +38,8 @@ local tabuleiro
 local pontos = 0
 
 local recordes = 0
--- -- Variável que representa o numero de tentativas inicial
--- local tentativas = 10
--- Texto do placar
 
-local cartasRestantes = 20
+local cartasRestantes = 28
 
 local placarText
 
@@ -74,6 +71,39 @@ local function embaralhar(tabela)
     end
     -- Retorna a tabela com os elementos embaralhados
     return tabela
+end
+
+
+-- Função para faer a contagem regressiva de 3 segundos na tela
+local function efeitoContagem()
+
+    local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
+    local x = display.contentCenterX 
+    local y = display.contentCenterY
+
+    
+    local function mostrarImagem(i)
+        local imagem = display.newImageRect(contagem[i], 207, 262)
+        imagem.x = x
+        imagem.y = y
+        imagem.alpha = 0  -- Começa totalmente transparente
+
+        transition.to(imagem, { time = 120, alpha = 1, onComplete = function()
+            -- Imagem está totalmente visível, espera 1 segundo
+            timer.performWithDelay(120, function()
+                transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
+                    display.remove(imagem)  -- Remove a imagem após o fade-out
+                    if i < #contagem then
+                        mostrarImagem(i + 1) 
+                   -- else
+                    --    iniciarTemporizador() -- Mostra a próxima imagem
+                    end
+                end })
+            end)
+        end })
+    end
+    mostrarImagem(1)
+    
 end
 
 --Função para criar uma carta com imagem de frente e verso
@@ -175,13 +205,15 @@ local function verificarVitoria()
 cartasRestantes = cartasRestantes -2
 
 
-if cartasRestantes == 0 then
+if cartasRestantes == 0 and pontos >=110 then
 recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
     
     --composer.setVariable ("name", nomeJogador)
-    composer.gotoScene ("game2", {time=800, effect="crossFade"})
-
+    composer.gotoScene ("game3", {time=800, effect="crossFade"})
+else
+    recordes = recordes + pontos
+    composer.setVariable ("scoreFinal", recordes)
 end
 
 end
@@ -314,6 +346,10 @@ function scene:create(event)
     local bg = display.newImageRect (sceneGroup, "imagens/bg3.png", 1920/2.7, 1080/3.4)
     bg.x = display.contentCenterX -2 
     bg.y = display.contentCenterY 
+
+    timer.performWithDelay(1000, function()
+        efeitoContagem()
+        end) -- Chama a função de contagem regressiva
 
     tabuleiro = criarTab()
     tabuleiro:addEventListener("tap", onBoardTap)

@@ -19,6 +19,13 @@ local function gotoRecordes ()
 	composer.gotoScene ("recordes", {time = 800, effect = "crossFade"})
 end
 
+local function gotoGame2 ()
+	composer.gotoScene ("game2", {time = 800, effect = "crossFade"})
+end
+local function gotoGame3 ()
+	composer.gotoScene ("game3", {time = 800, effect = "crossFade"})
+end
+
 local jogoEmAndamento = false
 -- Lista de imagens para as cartas
 local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10", "card11", "card12", "card13", "card14", "card15"}
@@ -38,20 +45,95 @@ local tabuleiro
 local pontos = 0
 
 local recordes = 0
--- -- Variável que representa o numero de tentativas inicial
--- local tentativas = 10
--- Texto do placar
 
-local cartasRestantes = 20
+local cartasRestantes = 28
 
 local placarText
+
+local tempoTotal = 0 
+local timerText
+local timerID
+
+
+--#####################################################
+-- Função para atualizar o temporizador na tela
+local function atualizarTemporizador()
+    local minutos = math.floor(tempoTotal / 60)
+    local segundos = tempoTotal % 60
+    timerText.text = string.format("%02d:%02d", minutos, segundos)
+end
+
+-- Função para iniciar o temporizador
+local function iniciarTemporizador()
+    tempoTotal = 0
+    atualizarTemporizador()
+
+    timerID = timer.performWithDelay(1000, function()
+        tempoTotal = tempoTotal + 1
+        atualizarTemporizador()
+
+        if tempoTotal <= 0 then
+            -- Temporizador chegou a zero, você pode fazer algo aqui
+            timer.cancel(timerID) -- Cancela o temporizador
+        end
+    end, tempoTotal)
+end
+
+-- Função para parar o temporizador e gravar o tempo restante
+local function pararTemporizador()
+    if timerID then
+        timer.cancel(timerID)
+        timerID = nil
+        -- Aqui você pode salvar o tempo restante em uma variável ou fazer o que for necessário
+        local tempoRestante = tempoTotal
+        print("Tempo Restante: " .. tempoRestante .. " segundos")
+    end
+end
+
+
+
+
+
+
+
+--#######################################################
+local function efeitoContagem()
+
+    local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
+    local x = display.contentCenterX 
+    local y = display.contentCenterY
+
+    
+    local function mostrarImagem(i)
+        local imagem = display.newImageRect(contagem[i], 207, 262)
+        imagem.x = x
+        imagem.y = y
+        imagem.alpha = 0  -- Começa totalmente transparente
+
+        transition.to(imagem, { time = 120, alpha = 1, onComplete = function()
+            -- Imagem está totalmente visível, espera 1 segundo
+            timer.performWithDelay(120, function()
+                transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
+                    display.remove(imagem)  -- Remove a imagem após o fade-out
+                    if i < #contagem then
+                        mostrarImagem(i + 1) 
+                    else
+                        iniciarTemporizador() -- Mostra a próxima imagem
+                    end
+                end })
+            end)
+        end })
+    end
+    mostrarImagem(1)
+    
+end
 
 local function virarTodasAsCartas()
     for i = 1, tabuleiro.numChildren do
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(3000, function()
+    timer.performWithDelay(4000, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
@@ -172,15 +254,19 @@ end
 -- Função para verificar vitória
 local function verificarVitoria()
     -- Variavel para verificaçao de cartas restantes
-cartasRestantes = cartasRestantes -2
+    cartasRestantes = cartasRestantes -2
 
+    if cartasRestantes == 0 then
+        pararTemporizador()
+    end
 
-if cartasRestantes == 0 then
-recordes = recordes + pontos
+    if cartasRestantes == 0 and pontos >= 120 then
+    recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
     
-    --composer.setVariable ("name", nomeJogador)
-    composer.gotoScene ("game2", {time=800, effect="crossFade"})
+    timer.performWithDelay(3000, function()    
+        gotoGame3()
+    end)
 
 end
 
@@ -199,17 +285,18 @@ local function checar()
             table.insert(cartasViradas, carta)
         end
     end
+    
   
     if #cartasViradas == 3 and virar then
         
-        local imagemTemporaria = display.newImageRect( "imagens/gameOver.png", 1280/3, 720/3)
-        imagemTemporaria.x = display.contentCenterX
-        imagemTemporaria.y = display.contentCenterY
+        local selecioneDuasCartas = display.newImageRect( "imagens/selecione-apenas-2-cartas.png", 1280/3, 720/3)
+        selecioneDuasCartas.x = display.contentCenterX
+        selecioneDuasCartas.y = display.contentCenterY
 
         timer.performWithDelay(3000, function()
-            display.remove(imagemTemporaria)
+            display.remove(selecioneDuasCartas)
             pontos = 0
-            gotoGame()
+            gotoGame2()
         end)
     end
     -- Se tiverem duas cartas viradas e a função de virar cartas estiver disponivel
@@ -315,6 +402,13 @@ function scene:create(event)
     bg.x = display.contentCenterX -2 
     bg.y = display.contentCenterY 
 
+    timer.performWithDelay(1000, function()
+    efeitoContagem()
+    end) -- Chama a função de contagem regressiva
+
+    timerText = display.newText("00:00", display.contentCenterX-272, 45, native.systemFont, 18)
+    timerText:setFillColor(0,0,0)
+
     tabuleiro = criarTab()
     tabuleiro:addEventListener("tap", onBoardTap)
     sceneGroup:insert(tabuleiro)
@@ -324,19 +418,23 @@ function scene:create(event)
     local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2.5, 96/2.5)
     fundo.x, fundo.y = -30, display.contentCenterY + 80
    
-    placarText = display.newText(sceneGroup, " " .. pontos, 5, display.contentCenterY + 80, native.systemFont, 15)
+    placarText = display.newText(sceneGroup, " " .. pontos, 5, display.contentCenterY + 80, native.systemFont, 18)
     placarText:setFillColor(0, 0, 0)
 
     -- tentativasText = display.newText(sceneGroup, " " .. tentativas, 220, 15.5, native.systemFont, 20)
 
+    local timerTempo = display.newImageRect (sceneGroup,"imagens/tempo.png", 315/2.5, 96/2.5)
+    timerTempo.x = -28  timerTempo.y = display.contentCenterY -120
+
+
     local menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
-    menu.x = -30   menu.y = display.contentCenterY - 90
+    menu.x = -30   menu.y = display.contentCenterY - 70
     menu:addEventListener ("tap", gotoMenu)
 
-    local recordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
-    recordes.x = -30
-    recordes.y = display.contentCenterY - 40
-    recordes:addEventListener ("tap", gotoRecordes)
+    local imgRecordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
+    imgRecordes.x = -30
+    imgRecordes.y = display.contentCenterY - 20
+    imgRecordes:addEventListener ("tap", gotoRecordes)
 
 end
 
@@ -366,7 +464,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
-              composer.removeScene("game")
+              composer.removeScene("game2")
 	end
 end
 
