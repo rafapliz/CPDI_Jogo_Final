@@ -205,7 +205,7 @@ local function verificarVitoria()
 cartasRestantes = cartasRestantes -2
 
 
-if cartasRestantes == 0 and pontos >=110 then
+if cartasRestantes == 0 and pontos >= 120 then
 recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
     
@@ -234,12 +234,12 @@ local function checar()
   
     if #cartasViradas == 3 and virar then
         
-        local imagemTemporaria = display.newImageRect( "imagens/gameOver.png", 1280/3, 720/3)
-        imagemTemporaria.x = display.contentCenterX
-        imagemTemporaria.y = display.contentCenterY
+        local selecioneDuasCartas = display.newImageRect( "imagens/selecione-apenas-2-cartas.png", 1280/3, 720/3)
+        selecioneDuasCartas.x = display.contentCenterX
+        selecioneDuasCartas.y = display.contentCenterY
 
         timer.performWithDelay(3000, function()
-            display.remove(imagemTemporaria)
+            display.remove(selecioneDuasCartas)
             pontos = 0
             gotoGame()
         end)

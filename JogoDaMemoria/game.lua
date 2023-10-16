@@ -28,7 +28,7 @@ local jogoEmAndamento = false
 -- Lista de imagens para as cartas
 local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10" }
 -- Número de colunas e linhas do tabuleiro
-local numCols, numLinhas = 2, 2
+local numCols, numLinhas = 5, 4
 -- Espaçamento entre as cartas
 local distancia = 2
 -- Largura e altura de cada carta
@@ -47,20 +47,58 @@ local recordes = 0
 -- local tentativas = 10
 -- Texto do placar
 
-local cartasRestantes = 4
+local cartasRestantes = 20
 
 local placarText
+
+
+local function efeitoContagem()
+
+    local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
+    local x = display.contentCenterX 
+    local y = display.contentCenterY
+    
+    local function mostrarImagem(i)
+        local imagem = display.newImageRect(contagem[i], 207, 262)
+        imagem.x = x
+        imagem.y = y
+        imagem.alpha = 0  -- Começa totalmente transparente
+
+        transition.to(imagem, { time = 120, alpha = 1, onComplete = function()
+            -- Imagem está totalmente visível, espera 1 segundo
+            timer.performWithDelay(120, function()
+                transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
+                    display.remove(imagem)  -- Remove a imagem após o fade-out
+                    if i < #contagem then
+                        mostrarImagem(i + 1) 
+                    end
+                end })
+            end)
+        end })
+    end
+    mostrarImagem(1)
+end
+
 
 local function virarTodasAsCartas()
     for i = 1, tabuleiro.numChildren do
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(3000, function()
+    timer.performWithDelay(4000, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
         end
+
+        local mensagemFase = display.newImageRect( "imagens/mensagemFase1.png", 562/1.5, 173/1.5)
+        mensagemFase.x = display.contentCenterX
+        mensagemFase.y = display.contentCenterY
+
+        timer.performWithDelay(3000, function()
+            display.remove(mensagemFase)
+        end)
+
     end)
 end
 
@@ -180,14 +218,13 @@ local function verificarVitoria()
 cartasRestantes = cartasRestantes -2
 
 
-if cartasRestantes == 0 then
+if cartasRestantes == 0 and pontos >= 100  then
 recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
     
     timer.performWithDelay(3000, function()    
         gotoGame2()
     end)
-
 end
 
 end
@@ -208,12 +245,12 @@ local function checar()
   
     if #cartasViradas == 3 and virar then
         
-        local imagemTemporaria = display.newImageRect( "imagens/gameOver.png", 1280/3, 720/3)
-        imagemTemporaria.x = display.contentCenterX
-        imagemTemporaria.y = display.contentCenterY
+        local selecioneDuasCartas = display.newImageRect( "imagens/selecione-apenas-2-cartas.png", 1280/3, 720/3)
+        selecioneDuasCartas.x = display.contentCenterX
+        selecioneDuasCartas.y = display.contentCenterY
 
         timer.performWithDelay(3000, function()
-            display.remove(imagemTemporaria)
+            display.remove(selecioneDuasCartas)
             pontos = 0
             gotoGame()
         end)
@@ -326,6 +363,10 @@ function scene:create(event)
     sceneGroup:insert(tabuleiro)
 
     virarTodasAsCartas()
+
+    timer.performWithDelay(1000, function()
+        efeitoContagem()
+        end) -- Chama a função de contagem regressiva
 
     local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
     fundo.x, fundo.y = 30, display.contentCenterY + 80

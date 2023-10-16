@@ -4,5 +4,5 @@
 local composer = require("composer")
 
 -- Iniciar Composer
-composer.gotoScene("game3")
+composer.gotoScene("game")
 

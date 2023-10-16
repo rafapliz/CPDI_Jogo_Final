@@ -71,11 +71,6 @@ local function iniciarTemporizador()
     timerID = timer.performWithDelay(1000, function()
         tempoTotal = tempoTotal + 1
         atualizarTemporizador()
-
-        if tempoTotal <= 0 then
-            -- Temporizador chegou a zero, você pode fazer algo aqui
-            timer.cancel(timerID) -- Cancela o temporizador
-        end
     end, tempoTotal)
 end
 
@@ -86,8 +81,7 @@ local function pararTemporizador()
         timerID = nil
         -- Aqui você pode salvar o tempo restante em uma variável ou fazer o que for necessário
         local tempoRestante = tempoTotal
-        print("Tempo Restante: " .. tempoRestante .. " segundos")
-    end
+      end
 end
 
 
@@ -118,7 +112,7 @@ local function efeitoContagem()
                     if i < #contagem then
                         mostrarImagem(i + 1) 
                     else
-                        iniciarTemporizador() -- Mostra a próxima imagem
+                        iniciarTemporizador() 
                     end
                 end })
             end)
@@ -461,7 +455,8 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
+        pararTemporizador()
+        display.remove(timerText)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
               composer.removeScene("game2")
