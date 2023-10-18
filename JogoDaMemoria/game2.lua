@@ -8,8 +8,12 @@ local SomVirarCarta = audio.loadSound ("audio/virarcarta.mp3")
 local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
 
 local acertos = 0
-local function gotoGame()
-	composer.gotoScene ("game", {time = 800, effect = "crossFade"})
+
+local function gotoGame2()
+	composer.gotoScene ("game2", {time = 800, effect = "crossFade"})
+end
+local function gotoGame3()
+	composer.gotoScene ("game3", {time = 800, effect = "crossFade"})
 end
 
 local function gotoMenu()
@@ -37,7 +41,7 @@ local tabuleiro
 -- Variável que representa o numero de pontos
 local pontos = 0
 
-local recordes = 0
+local recordes = composer.getVariable("scoreFinal1")
 
 local cartasRestantes = 28
 
@@ -199,24 +203,64 @@ local function criarTab()
     return grupoTab
 end
 
+
+local imagemTenteNovamente
+local voltarMenu
+local tentarNovamente
+
+local function funcaoMenu()
+    display.remove(imagemTenteNovamente)
+    display.remove(voltarMenu)
+    display.remove(tentarNovamente)
+    composer.removeScene("game2")
+    gotoMenu()
+end
+
+-- Função para remover a imagem "TenteNovamente"
+local function funcaoImagemTenteNovamente()
+    display.remove(imagemTenteNovamente)
+    display.remove(voltarMenu)
+    display.remove(tentarNovamente)
+    composer.removeScene("game2")
+    gotoGame2() -- Reinicia a cena "game2"
+end
+
+-- Função para criar a imagem "TenteNovamente"
+local function criarImagemTenteNovamente()
+    imagemTenteNovamente = display.newImageRect("imagens/GameOver.png", 1920/4, 1080/4)
+    imagemTenteNovamente.x = display.contentCenterX
+    imagemTenteNovamente.y = display.contentCenterY
+
+    voltarMenu =   display.newImageRect("imagens/menu.png",  320/1.5, 100/1.5)
+    voltarMenu.x = display.contentCenterX - 120
+    voltarMenu.y = display.contentCenterY +50
+    voltarMenu:addEventListener("tap", funcaoMenu)
+
+    tentarNovamente = display.newImageRect("imagens/tentar-de-novo.png", 320/1.4, 101/1.4)
+    tentarNovamente.x = display.contentCenterX +120
+    tentarNovamente.y = display.contentCenterY + 50
+    tentarNovamente:addEventListener("tap", funcaoImagemTenteNovamente)
+end
+
 -- Função para verificar vitória
 local function verificarVitoria()
+
     -- Variavel para verificaçao de cartas restantes
-cartasRestantes = cartasRestantes -2
-
-
-if cartasRestantes == 0 and pontos >= 120 then
-recordes = recordes + pontos
-    composer.setVariable ("scoreFinal", recordes)
+    cartasRestantes = cartasRestantes -2
     
-    --composer.setVariable ("name", nomeJogador)
-    composer.gotoScene ("game3", {time=800, effect="crossFade"})
-else
-    recordes = recordes + pontos
-    composer.setVariable ("scoreFinal", recordes)
-end
-
-end
+        if cartasRestantes == 0 then
+            if pontos >= 120 then
+            recordes = recordes + pontos
+            composer.setVariable("scoreFinal2", recordes)
+            timer.performWithDelay(3000, function()
+                gotoGame3()
+            end)
+            else
+              -- A pontuação é menor que 100, então executa a função criarImagemTenteNovamente()
+                criarImagemTenteNovamente()
+            end
+        end
+    end
 
 -- Função para verificar se duas cartas viradas são iguaais
 local function checar()
@@ -241,7 +285,7 @@ local function checar()
         timer.performWithDelay(3000, function()
             display.remove(selecioneDuasCartas)
             pontos = 0
-            gotoGame()
+            gotoGame2()
         end)
     end
     -- Se tiverem duas cartas viradas e a função de virar cartas estiver disponivel
@@ -342,6 +386,7 @@ function scene:create(event)
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
     audio.play (SomEmbaralhar)
+    print("Recordes inicial: ", recordes)
 
     local bg = display.newImageRect (sceneGroup, "imagens/bg3.png", 1920/2.7, 1080/3.4)
     bg.x = display.contentCenterX -2 

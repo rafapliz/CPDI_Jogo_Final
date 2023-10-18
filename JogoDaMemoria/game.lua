@@ -7,6 +7,9 @@ local SomAcertou = audio.loadSound ("audio/acertou.mp3")
 local SomVirarCarta = audio.loadSound ("audio/virarcarta.mp3")
 local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
 
+
+
+
 local acertos = 0
 -- função voltar para menu
 local function gotoGame()
@@ -26,7 +29,7 @@ end
 
 local jogoEmAndamento = false
 -- Lista de imagens para as cartas
-local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10" }
+local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10","card11","card12","card13","card14","card15" }
 -- Número de colunas e linhas do tabuleiro
 local numCols, numLinhas = 5, 4
 -- Espaçamento entre as cartas
@@ -51,8 +54,19 @@ local cartasRestantes = 20
 
 local placarText
 
+local menu = display.newImageRect ("imagens/menu.png", 315/2, 96/2)
+menu.x = 30    menu.y = display.contentCenterY - 90
+menu:addEventListener ("tap", gotoMenu)
+
+local recordes = display.newImageRect ("imagens/recordes.png", 315/2, 96/2)
+recordes.x = 30
+recordes.y = display.contentCenterY - 40
+recordes:addEventListener ("tap", gotoRecordes)
 
 local function efeitoContagem()
+
+    menu:removeEventListener ("tap", gotoMenu)
+    recordes:removeEventListener ("tap", gotoRecordes)
 
     local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
     local x = display.contentCenterX 
@@ -91,12 +105,14 @@ local function virarTodasAsCartas()
             carta:reset()
         end
 
-        local mensagemFase = display.newImageRect( "imagens/mensagemFase1.png", 562/1.5, 173/1.5)
+        local mensagemFase = display.newImageRect("imagens/mensagemFase1.png", 562/1.5, 173/1.5)
         mensagemFase.x = display.contentCenterX
         mensagemFase.y = display.contentCenterY
 
         timer.performWithDelay(3000, function()
             display.remove(mensagemFase)
+            menu:addEventListener ("tap", gotoMenu)
+            recordes:addEventListener ("tap", gotoRecordes)
         end)
 
     end)
@@ -212,22 +228,65 @@ local function criarTab()
     return grupoTab
 end
 
+local imagemTenteNovamente
+local voltarMenu 
+local tentarNovamente
+
+local function funcaoMenu()
+    display.remove(imagemTenteNovamente)
+    display.remove(voltarMenu)
+    display.remove(tentarNovamente)
+    composer.removeScene("game")
+    gotoMenu()
+end
+
+-- Função para remover a imagem "TenteNovamente"
+local function funcaoImagemTenteNovamente()
+    display.remove(imagemTenteNovamente)
+    display.remove(voltarMenu)
+    display.remove(tentarNovamente)
+    composer.removeScene("game")
+    gotoGame() -- Reinicia a cena "game"
+end
+
+-- Função para criar a imagem "TenteNovamente"
+local function criarImagemTenteNovamente()
+    imagemTenteNovamente = display.newImageRect("imagens/GameOver.png", 1920/4, 1080/4)
+    imagemTenteNovamente.x = display.contentCenterX
+    imagemTenteNovamente.y = display.contentCenterY
+
+    voltarMenu =   display.newImageRect("imagens/menu.png",  320/1.5, 100/1.5)
+    voltarMenu.x = display.contentCenterX - 120
+    voltarMenu.y = display.contentCenterY +50
+    voltarMenu:addEventListener("tap", funcaoMenu)
+
+    tentarNovamente = display.newImageRect("imagens/tentar-de-novo.png", 320/1.4, 101/1.4)
+    tentarNovamente.x = display.contentCenterX +120
+    tentarNovamente.y = display.contentCenterY + 50
+    tentarNovamente:addEventListener("tap", funcaoImagemTenteNovamente)
+end
+
 -- Função para verificar vitória
 local function verificarVitoria()
-    -- Variavel para verificaçao de cartas restantes
+
+-- Variavel para verificaçao de cartas restantes
 cartasRestantes = cartasRestantes -2
 
-
-if cartasRestantes == 0 and pontos >= 100  then
-recordes = recordes + pontos
-    composer.setVariable ("scoreFinal", recordes)
-    
-    timer.performWithDelay(3000, function()    
-        gotoGame2()
-    end)
+    if cartasRestantes == 0 then
+        if pontos >= 100 then
+        recordes = recordes + pontos
+        composer.setVariable("scoreFinal1", recordes)
+        timer.performWithDelay(3000, function()
+            gotoGame2()
+        end)
+        else
+          -- A pontuação é menor que 100, então executa a função criarImagemTenteNovamente()
+            criarImagemTenteNovamente()
+        end
+    end
 end
 
-end
+
 
 -- Função para verificar se duas cartas viradas são iguaais
 local function checar()
@@ -353,14 +412,25 @@ function scene:create(event)
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
     audio.play (SomEmbaralhar)
-
+    
     local bg = display.newImageRect (sceneGroup, "imagens/bg.png", 1920/2.7, 1080/3.4)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY 
 
+    local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
+    fundo.x, fundo.y = 30, display.contentCenterY + 80
+
+    placarText = display.newText(sceneGroup, " " .. pontos, 75, display.contentCenterY + 80, native.systemFont, 20)
+    placarText:setFillColor(0, 0, 0)
+
     tabuleiro = criarTab()
     tabuleiro:addEventListener("tap", onBoardTap)
     sceneGroup:insert(tabuleiro)
+    
+    sceneGroup:insert(menu)
+    sceneGroup:insert(recordes)
+ 
+   
 
     virarTodasAsCartas()
 
@@ -368,22 +438,7 @@ function scene:create(event)
         efeitoContagem()
         end) -- Chama a função de contagem regressiva
 
-    local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
-    fundo.x, fundo.y = 30, display.contentCenterY + 80
-   
-    placarText = display.newText(sceneGroup, " " .. pontos, 75, display.contentCenterY + 80, native.systemFont, 20)
-    placarText:setFillColor(0, 0, 0)
-
-    -- tentativasText = display.newText(sceneGroup, " " .. tentativas, 220, 15.5, native.systemFont, 20)
-
-    local menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2, 96/2)
-    menu.x = 30    menu.y = display.contentCenterY - 90
-    menu:addEventListener ("tap", gotoMenu)
-
-    local recordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2, 96/2)
-    recordes.x = 30
-    recordes.y = display.contentCenterY - 40
-    recordes:addEventListener ("tap", gotoRecordes)
+  
 
 end
 
@@ -410,10 +465,11 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
+        
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
-              composer.removeScene("game")
+        composer.removeScene("game")
+
 	end
 end
 
@@ -422,7 +478,6 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-  
 end
 
 

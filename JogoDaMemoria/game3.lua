@@ -44,7 +44,7 @@ local tabuleiro
 -- Variável que representa o numero de pontos
 local pontos = 0
 
-local recordes = 0
+local recordes = composer.getVariable("scoreFinal2")
 
 local cartasRestantes = 28
 
@@ -53,7 +53,6 @@ local placarText
 local tempoTotal = 0 
 local timerText
 local timerID
-
 
 --#####################################################
 -- Função para atualizar o temporizador na tela
@@ -81,6 +80,8 @@ local function pararTemporizador()
         timerID = nil
         -- Aqui você pode salvar o tempo restante em uma variável ou fazer o que for necessário
         local tempoRestante = tempoTotal
+        composer.setVariable("tempoFinal", tempoTotal)
+        print("Tempo final foi: ", tempoTotal)
       end
 end
 
@@ -250,19 +251,25 @@ local function verificarVitoria()
     -- Variavel para verificaçao de cartas restantes
     cartasRestantes = cartasRestantes -2
 
-    if cartasRestantes == 0 then
+     if cartasRestantes == 0 then
         pararTemporizador()
-    end
-
-    if cartasRestantes == 0 and pontos >= 120 then
     recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
     
-    timer.performWithDelay(3000, function()    
-        gotoGame3()
-    end)
+    local imgPartidaFinalizada = display.newImageRect("imagens/GameOver.png", 1920/4, 1080/4)
+    imgPartidaFinalizada.x = display.contentCenterX
+    imgPartidaFinalizada.y = display.contentCenterY
 
-end
+    local minutos = math.floor(tempoTotal / 60)
+    local segundos = tempoTotal % 60
+    timerText.text = string.format("%02d:%02d", minutos, segundos)
+    timerText.x = display.contentCenterX
+    timerText.x = display.contentCenterX 
+        timer.performWithDelay(3000, function()    
+        gotoGame3()
+         end)
+
+    end
 
 end
 
@@ -391,6 +398,7 @@ function scene:create(event)
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
     audio.play (SomEmbaralhar)
+    print("Recordes inicial: ", recordes)
 
     local bg = display.newImageRect (sceneGroup, "imagens/bg3.png", 1920/2.7, 1080/3.4)
     bg.x = display.contentCenterX -2 
