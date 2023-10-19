@@ -6,7 +6,15 @@ local scriptJogador = require("jogador")
 local json = require("json")
 local pontosTable = {}
 local nomesTable = {}
-local filePath = system.pathForFile("pontos.json", system.DocumentsDirectory)
+local timerTable = {}
+local filePath = system.pathForFile("pontos3.json", system.DocumentsDirectory)
+
+local tempoFinal 
+local playerScore
+print("tempo final é ", tempoFinal)
+
+
+
 
 local function carregaPontos()
     local pasta = io.open(filePath, "r")
@@ -19,15 +27,18 @@ local function carregaPontos()
         if decodedData then
             pontosTable = decodedData.pontos
             nomesTable = decodedData.nomes
+            timerTable = decodedData.timer
         end
     end
 
     if (pontosTable == nil or #pontosTable == 0) then
         pontosTable = {}
         nomesTable = {}
+        timerTable = {}
         for i = 1, 6 do
             pontosTable[i] = 0
             nomesTable[i] = " "
+            timerTable[i] = 0
         end
     end
 end
@@ -35,7 +46,8 @@ end
 local function salvaPontos()
     local dataToSave = {
         pontos = pontosTable,
-        nomes = nomesTable
+        nomes = nomesTable,
+        timer = timerTable
     }
 
     local pasta = io.open(filePath, "w")
@@ -69,19 +81,28 @@ function scene:create(event)
     
     local playerName = composer.getVariable("ArmazenaJogador")
 
-    local playerScore = composer.getVariable("scoreFinal")
+    playerScore = composer.getVariable("scoreFinal")
+
+    tempoFinal = composer.getVariable("tempoFinal")
+
+   
 
     composer.setVariable("scoreFinal", 0)
 
-    -- Verifica se a nova pontuação é maior que a menor pontuação atual na tabela
+    -- Verifica se a nova pontuação é maior que a pontuação atual na tabela
     for i = 6, 1, -1 do
         if playerScore > (pontosTable[i] or 0) then
             if i < 5 then
                 pontosTable[i + 1] = pontosTable[i]
                 nomesTable[i + 1] = nomesTable[i]
+                timerTable[i + 1] = timerTable[i]
             end
+            local minutos = math.floor(tempoFinal / 60)
+            local segundos = tempoFinal % 60
+
             pontosTable[i] = playerScore
             nomesTable[i] = playerName
+            timerTable[i] = minutos .."m ".. segundos .."s"
         end
     end
 
@@ -109,6 +130,10 @@ function scene:create(event)
         playerScoreText.anchorX = 0
         playerScoreText:setFillColor (0.2, 0.5, 0.8)
         playerScoreText.anchorX = 0
+
+        local playerTimerText = display.newText(sceneGroup, timerTable[i] or 0,  display.contentCenterX+120, yPos - 150, native.systemFont, 25)
+        playerTimerText.anchorX = 0
+        playerTimerText:setFillColor (0.2, 0.5, 0.8)
     end
 
     local menu = display.newImageRect (sceneGroup, "imagens/menu.png", 315/2, 96/2)

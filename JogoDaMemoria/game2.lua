@@ -46,17 +46,29 @@ local recordes = composer.getVariable("scoreFinal1")
 local cartasRestantes = 28
 
 local placarText
+local menu
+local imgRecordes
+
 
 local function virarTodasAsCartas()
     for i = 1, tabuleiro.numChildren do
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(3000, function()
+    timer.performWithDelay(4200, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
         end
+        local   mensagemFase = display.newImageRect("imagens/mensagemFase1.png", 562/1.5, 173/1.5)
+            mensagemFase.x = display.contentCenterX
+            mensagemFase.y = display.contentCenterY
+
+            timer.performWithDelay(3000, function()
+            display.remove(mensagemFase)
+            menu:addEventListener ("tap", gotoMenu)
+            imgRecordes:addEventListener ("tap", gotoRecordes)
+            end)
     end)
 end
 
@@ -77,9 +89,11 @@ local function embaralhar(tabela)
     return tabela
 end
 
-
 -- Função para faer a contagem regressiva de 3 segundos na tela
 local function efeitoContagem()
+
+    menu:removeEventListener ("tap", gotoMenu)
+    imgRecordes:removeEventListener ("tap", gotoRecordes)
 
     local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
     local x = display.contentCenterX 
@@ -92,9 +106,9 @@ local function efeitoContagem()
         imagem.y = y
         imagem.alpha = 0  -- Começa totalmente transparente
 
-        transition.to(imagem, { time = 120, alpha = 1, onComplete = function()
+        transition.to(imagem, { time = 130, alpha = 1, onComplete = function()
             -- Imagem está totalmente visível, espera 1 segundo
-            timer.performWithDelay(120, function()
+            timer.performWithDelay(130, function()
                 transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
                     display.remove(imagem)  -- Remove a imagem após o fade-out
                     if i < #contagem then
@@ -253,6 +267,9 @@ local function verificarVitoria()
             recordes = recordes + pontos
             composer.setVariable("scoreFinal2", recordes)
             timer.performWithDelay(3000, function()
+            composer.removeScene("game2")
+            display.remove(menu)
+            display.remove(imgRecordes)
                 gotoGame3()
             end)
             else
@@ -392,7 +409,7 @@ function scene:create(event)
     bg.x = display.contentCenterX -2 
     bg.y = display.contentCenterY 
 
-    timer.performWithDelay(1000, function()
+    timer.performWithDelay(500, function()
         efeitoContagem()
         end) -- Chama a função de contagem regressiva
 
@@ -410,14 +427,14 @@ function scene:create(event)
 
     -- tentativasText = display.newText(sceneGroup, " " .. tentativas, 220, 15.5, native.systemFont, 20)
 
-    local menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
+    menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
     menu.x = -30   menu.y = display.contentCenterY - 90
     menu:addEventListener ("tap", gotoMenu)
 
-    local recordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
-    recordes.x = -30
-    recordes.y = display.contentCenterY - 40
-    recordes:addEventListener ("tap", gotoRecordes)
+    imgRecordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
+    imgRecordes.x = -30
+    imgRecordes.y = display.contentCenterY - 40
+    imgRecordes:addEventListener ("tap", gotoRecordes)
 
 end
 
@@ -447,7 +464,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
-              composer.removeScene("game")
+              composer.removeScene("game2")
 	end
 end
 

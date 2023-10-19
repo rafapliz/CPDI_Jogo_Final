@@ -30,7 +30,7 @@ local jogoEmAndamento = false
 -- Lista de imagens para as cartas
 local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10", "card11", "card12", "card13", "card14", "card15"}
 -- Número de colunas e linhas do tabuleiro
-local numCols, numLinhas = 7, 4
+local numCols, numLinhas =  7, 4
 -- Espaçamento entre as cartas
 local distancia = 2
 -- Largura e altura de cada carta
@@ -49,6 +49,9 @@ local recordes = composer.getVariable("scoreFinal2")
 local cartasRestantes = 28
 
 local placarText
+
+local menu
+local imgRecordes
 
 local tempoTotal = 0 
 local timerText
@@ -93,6 +96,8 @@ end
 
 --#######################################################
 local function efeitoContagem()
+    menu:removeEventListener ("tap", gotoMenu)
+    imgRecordes:removeEventListener ("tap", gotoRecordes)
 
     local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
     local x = display.contentCenterX 
@@ -105,9 +110,9 @@ local function efeitoContagem()
         imagem.y = y
         imagem.alpha = 0  -- Começa totalmente transparente
 
-        transition.to(imagem, { time = 120, alpha = 1, onComplete = function()
+        transition.to(imagem, { time = 130, alpha = 1, onComplete = function()
             -- Imagem está totalmente visível, espera 1 segundo
-            timer.performWithDelay(120, function()
+            timer.performWithDelay(130, function()
                 transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
                     display.remove(imagem)  -- Remove a imagem após o fade-out
                     if i < #contagem then
@@ -128,11 +133,20 @@ local function virarTodasAsCartas()
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(4000, function()
+    timer.performWithDelay(4200, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
         end
+        local   mensagemFase = display.newImageRect("imagens/mensagemFase1.png", 562/1.5, 173/1.5)
+            mensagemFase.x = display.contentCenterX
+            mensagemFase.y = display.contentCenterY
+
+            timer.performWithDelay(3000, function()
+            display.remove(mensagemFase)
+            menu:addEventListener ("tap", gotoMenu)
+            imgRecordes:addEventListener ("tap", gotoRecordes)
+            end)
     end)
 end
 
@@ -251,24 +265,12 @@ local function verificarVitoria()
     -- Variavel para verificaçao de cartas restantes
     cartasRestantes = cartasRestantes -2
 
-     if cartasRestantes == 0 then
-        pararTemporizador()
+    if cartasRestantes == 0 then
+    pararTemporizador()
     recordes = recordes + pontos
     composer.setVariable ("scoreFinal", recordes)
+    gotoRecordes()
     
-    local imgPartidaFinalizada = display.newImageRect("imagens/GameOver.png", 1920/4, 1080/4)
-    imgPartidaFinalizada.x = display.contentCenterX
-    imgPartidaFinalizada.y = display.contentCenterY
-
-    local minutos = math.floor(tempoTotal / 60)
-    local segundos = tempoTotal % 60
-    timerText.text = string.format("%02d:%02d", minutos, segundos)
-    timerText.x = display.contentCenterX
-    timerText.x = display.contentCenterX 
-        timer.performWithDelay(3000, function()    
-        gotoGame3()
-         end)
-
     end
 
 end
@@ -297,7 +299,10 @@ local function checar()
         timer.performWithDelay(3000, function()
             display.remove(selecioneDuasCartas)
             pontos = 0
-            gotoGame2()
+            pararTemporizador()
+            display.remove(timerText)
+            composer.removeScene("game3")
+            gotoGame3()
         end)
     end
     -- Se tiverem duas cartas viradas e a função de virar cartas estiver disponivel
@@ -404,7 +409,7 @@ function scene:create(event)
     bg.x = display.contentCenterX -2 
     bg.y = display.contentCenterY 
 
-    timer.performWithDelay(1000, function()
+    timer.performWithDelay(500, function()
     efeitoContagem()
     end) -- Chama a função de contagem regressiva
 
@@ -429,11 +434,11 @@ function scene:create(event)
     timerTempo.x = -28  timerTempo.y = display.contentCenterY -120
 
 
-    local menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
+    menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
     menu.x = -30   menu.y = display.contentCenterY - 70
     menu:addEventListener ("tap", gotoMenu)
 
-    local imgRecordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
+    imgRecordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
     imgRecordes.x = -30
     imgRecordes.y = display.contentCenterY - 20
     imgRecordes:addEventListener ("tap", gotoRecordes)
@@ -467,7 +472,7 @@ function scene:hide( event )
         display.remove(timerText)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
-              composer.removeScene("game2")
+              composer.removeScene("game3")
 	end
 end
 

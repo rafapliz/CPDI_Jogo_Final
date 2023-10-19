@@ -53,20 +53,13 @@ local recordes = 0
 local cartasRestantes = 20
 
 local placarText
-
-local menu = display.newImageRect ("imagens/menu.png", 315/2, 96/2)
-menu.x = 30    menu.y = display.contentCenterY - 90
-menu:addEventListener ("tap", gotoMenu)
-
-local recordes = display.newImageRect ("imagens/recordes.png", 315/2, 96/2)
-recordes.x = 30
-recordes.y = display.contentCenterY - 40
-recordes:addEventListener ("tap", gotoRecordes)
+local imgRecordes
+local menu 
 
 local function efeitoContagem()
 
     menu:removeEventListener ("tap", gotoMenu)
-    recordes:removeEventListener ("tap", gotoRecordes)
+    imgRecordes:removeEventListener ("tap", gotoRecordes)
 
     local contagem = { "imagens/3.png", "imagens/2.png", "imagens/1.png" }
     local x = display.contentCenterX 
@@ -78,9 +71,9 @@ local function efeitoContagem()
         imagem.y = y
         imagem.alpha = 0  -- Começa totalmente transparente
 
-        transition.to(imagem, { time = 120, alpha = 1, onComplete = function()
+        transition.to(imagem, { time = 130, alpha = 1, onComplete = function()
             -- Imagem está totalmente visível, espera 1 segundo
-            timer.performWithDelay(120, function()
+            timer.performWithDelay(130, function()
                 transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
                     display.remove(imagem)  -- Remove a imagem após o fade-out
                     if i < #contagem then
@@ -99,7 +92,7 @@ local function virarTodasAsCartas()
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(4000, function()
+    timer.performWithDelay(4200, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
@@ -112,7 +105,7 @@ local function virarTodasAsCartas()
         timer.performWithDelay(3000, function()
             display.remove(mensagemFase)
             menu:addEventListener ("tap", gotoMenu)
-            recordes:addEventListener ("tap", gotoRecordes)
+            imgRecordes:addEventListener ("tap", gotoRecordes)
         end)
 
     end)
@@ -277,6 +270,8 @@ cartasRestantes = cartasRestantes -2
         recordes = recordes + pontos
         composer.setVariable("scoreFinal1", recordes)
         timer.performWithDelay(3000, function()
+            display.remove(menu)
+            display.remove(imgRecordes)
             gotoGame2()
         end)
         else
@@ -417,6 +412,15 @@ function scene:create(event)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY 
 
+    menu= display.newImageRect ("imagens/menu.png", 315/2, 96/2)
+    menu.x = 30    menu.y = display.contentCenterY - 90
+    menu:addEventListener ("tap", gotoMenu)
+    
+    imgRecordes = display.newImageRect ("imagens/recordes.png", 315/2, 96/2)
+    imgRecordes.x = 30
+    imgRecordes.y = display.contentCenterY - 40
+    imgRecordes:addEventListener ("tap", gotoRecordes)
+    
     local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
     fundo.x, fundo.y = 30, display.contentCenterY + 80
 
@@ -426,15 +430,10 @@ function scene:create(event)
     tabuleiro = criarTab()
     tabuleiro:addEventListener("tap", onBoardTap)
     sceneGroup:insert(tabuleiro)
-    
-    sceneGroup:insert(menu)
-    sceneGroup:insert(recordes)
- 
-   
 
     virarTodasAsCartas()
 
-    timer.performWithDelay(1000, function()
+    timer.performWithDelay(500, function()
         efeitoContagem()
         end) -- Chama a função de contagem regressiva
 
