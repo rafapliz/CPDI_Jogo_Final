@@ -241,6 +241,9 @@ end
 
 -- Função para criar a imagem "TenteNovamente"
 local function criarImagemTenteNovamente()
+    menu:removeEventListener ("tap", gotoMenu)
+    imgRecordes:removeEventListener ("tap", gotoRecordes)
+
     imagemTenteNovamente = display.newImageRect("imagens/GameOver.png", 1920/4, 1080/4)
     imagemTenteNovamente.x = display.contentCenterX
     imagemTenteNovamente.y = display.contentCenterY
@@ -461,10 +464,12 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-
+        display.remove(menu)
+        display.remove(imgRecordes)
 	elseif ( phase == "did" ) then
-		-- Code here runs immediately after the scene goes entirely off screen 
-              composer.removeScene("game2")
+	-- Code here runs immediately after the scene goes entirely off screen 
+        composer.removeScene("game2")
+        
 	end
 end
 

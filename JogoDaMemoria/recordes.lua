@@ -7,7 +7,7 @@ local json = require("json")
 local pontosTable = {}
 local nomesTable = {}
 local timerTable = {}
-local filePath = system.pathForFile("pontos3.json", system.DocumentsDirectory)
+local filePath = system.pathForFile("pontos1.json", system.DocumentsDirectory)
 
 local tempoFinal 
 local playerScore
@@ -108,41 +108,37 @@ function scene:create(event)
 
     salvaPontos()
 
-    local bg = display.newImageRect (sceneGroup, "imagens/bg-recordes.png", 1600/2.2, 900/2.6)
+    local bg = display.newImageRect (sceneGroup, "imagens/bg-recordes.png", 1920/2.7, 1080/3.2)
     bg.x, bg.y = display.contentCenterX, display.contentCenterY
 
-    local cabecalho = display.newImageRect (sceneGroup, "imagens/recordes.png",315/2, 96/2)
-    cabecalho.x = 20
-    cabecalho.y = 50
-
-    for i = 1, 5 do
+     for i = 1, 5 do
         local yPos = 200 + (i * 40)
 
-        local ranking = display.newText(sceneGroup, i .. ")", display.contentCenterX-90, yPos - 150, native.systemFont, 20)
-        ranking:setFillColor (0.2, 0.5, 0.8)
-        ranking.anchorX = 1
+        -- local ranking = display.newText(sceneGroup, i .. ")", display.contentCenterX-120, yPos - 160, native.systemFont, 20)
+        -- ranking:setFillColor (1,1,1)
+        -- ranking.anchorX = 1
 
-        local playerNameText = display.newText(sceneGroup, nomesTable[i] or "",  display.contentCenterX-80, yPos - 150, native.systemFont, 25)
+        local playerNameText = display.newText(sceneGroup, nomesTable[i] or "",  display.contentCenterX-160, yPos - 130, native.systemFont, 25)
         playerNameText.anchorX = 0
-        playerNameText:setFillColor (0.2, 0.5, 0.8)
+        playerNameText:setFillColor (1,1,1)
 
-        local playerScoreText = display.newText(sceneGroup, pontosTable[i] or 0, display.contentCenterX+50, yPos - 150, native.systemFont, 25)
+        local playerScoreText = display.newText(sceneGroup, pontosTable[i] or "", display.contentCenterX+60, yPos - 130, native.systemFont, 25)
         playerScoreText.anchorX = 0
-        playerScoreText:setFillColor (0.2, 0.5, 0.8)
+        playerScoreText:setFillColor (1,1,1)
         playerScoreText.anchorX = 0
 
-        local playerTimerText = display.newText(sceneGroup, timerTable[i] or 0,  display.contentCenterX+120, yPos - 150, native.systemFont, 25)
+        local playerTimerText = display.newText(sceneGroup, timerTable[i] or "",  display.contentCenterX+170, yPos - 130, native.systemFont, 25)
         playerTimerText.anchorX = 0
-        playerTimerText:setFillColor (0.2, 0.5, 0.8)
+        playerTimerText:setFillColor (1,1,1)
     end
 
-    local menu = display.newImageRect (sceneGroup, "imagens/menu.png", 315/2, 96/2)
-    menu.x = 430
-    menu.y = 275
+    local menu = display.newImageRect (sceneGroup, "imagens/menu.png", 315/2.7, 96/2.7)
+    menu.x = -50
+    menu.y = 50
     menu:addEventListener ("tap", gotoMenu)
 
-    local zerar = display.newImageRect (sceneGroup, "imagens/zerar-pontos.png", 315/2, 96/2)
-    zerar.x = 20
+    local zerar = display.newImageRect (sceneGroup, "imagens/zerar-pontos.png", 315/2.7, 96/2.7)
+    zerar.x = -50
     zerar.y = 275
     zerar:addEventListener ("tap", zerarPontos)
 end

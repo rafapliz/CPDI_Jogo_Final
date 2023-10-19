@@ -110,15 +110,13 @@ local function efeitoContagem()
         imagem.y = y
         imagem.alpha = 0  -- Começa totalmente transparente
 
-        transition.to(imagem, { time = 130, alpha = 1, onComplete = function()
+        transition.to(imagem, { time = 100, alpha = 1, onComplete = function()
             -- Imagem está totalmente visível, espera 1 segundo
-            timer.performWithDelay(130, function()
-                transition.to(imagem, { time = 1000, alpha = 0, onComplete = function()
+            timer.performWithDelay(100, function()
+                transition.to(imagem, { time = 800, alpha = 0, onComplete = function()
                     display.remove(imagem)  -- Remove a imagem após o fade-out
                     if i < #contagem then
                         mostrarImagem(i + 1) 
-                    else
-                        iniciarTemporizador() 
                     end
                 end })
             end)
@@ -133,17 +131,18 @@ local function virarTodasAsCartas()
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(4200, function()
+    timer.performWithDelay(3200, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
         end
-        local   mensagemFase = display.newImageRect("imagens/mensagemFase1.png", 562/1.5, 173/1.5)
+        local   mensagemFase = display.newImageRect("imagens/mensagemFase3.png", 439/1.5, 109/1.5)
             mensagemFase.x = display.contentCenterX
             mensagemFase.y = display.contentCenterY
 
-            timer.performWithDelay(3000, function()
+            timer.performWithDelay(2000, function()
             display.remove(mensagemFase)
+            iniciarTemporizador() 
             menu:addEventListener ("tap", gotoMenu)
             imgRecordes:addEventListener ("tap", gotoRecordes)
             end)
@@ -470,9 +469,12 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
         pararTemporizador()
         display.remove(timerText)
+        display.remove(menu)
+        display.remove(imgRecordes)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
-              composer.removeScene("game3")
+            composer.removeScene("game3")
+            
 	end
 end
 
