@@ -8,6 +8,7 @@ local pontosTable = {}
 local nomesTable = {}
 local timerTable = {}
 local filePath = system.pathForFile("pontos1.json", system.DocumentsDirectory)
+local SomAplausos = audio.loadSound ("audio/recordes.mp3")
 
 local tempoFinal 
 local playerScore
@@ -76,6 +77,9 @@ end
 
 function scene:create(event)
     local sceneGroup = self.view
+
+    audio.play (SomAplausos)
+ 
 
     carregaPontos()
     
@@ -148,7 +152,9 @@ function scene:show(event)
     local phase = event.phase
 
     if (phase == "will") then
+        
     elseif (phase == "did") then
+
     end
 end
 
@@ -157,8 +163,10 @@ function scene:hide(event)
     local phase = event.phase
 
     if (phase == "will") then
-    elseif (phase == "did") then
+    audio.stop()   
         composer.removeScene("recordes")
+    elseif (phase == "did") then
+       
     end
 end
 

@@ -21,10 +21,8 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 
-	
-
-	local bg = display.newImageRect (sceneGroup, "imagens/bg-jogador.png", 1600/2.2, 900/2.6)
-    bg.x, bg.y = display.contentCenterX, display.contentCenterY
+local bg = display.newImageRect (sceneGroup, "imagens/bg-jogador.png", 1600/2.2, 900/2.6)
+bg.x, bg.y = display.contentCenterX, display.contentCenterY
 
 -- Caixa de texto para o jogador digitar o nome
 local caixaDeTexto = native.newTextField(display.contentCenterX, display.contentCenterY, 200, 30)
@@ -56,14 +54,8 @@ end
 local botaoSalvar = display.newImageRect (sceneGroup, "imagens/play.png", 315/2, 96/2, native.systemFont, 44)
 botaoSalvar.x, botaoSalvar.y = display.contentCenterX, 240
 botaoSalvar:addEventListener("touch", salvarNome)
-	
-
--- local menu = display.newImageRect (sceneGroup, "imagens/menu.png", 315/2, 96/2)
--- menu.x, menu.y = display.contentCenterX - 200, 240
--- menu:addEventListener("tap", gotoMenu)
 
 end
-
 
 -- show()
 function scene:show( event )

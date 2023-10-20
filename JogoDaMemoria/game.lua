@@ -6,9 +6,7 @@ local SomErro = audio.loadSound ("audio/erro.mp3")
 local SomAcertou = audio.loadSound ("audio/acertou.mp3")
 local SomVirarCarta = audio.loadSound ("audio/virarcarta.mp3")
 local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
-
-
-
+local SomGameOver = audio.loadSound ("audio/gameover.mp3")
 
 local acertos = 0
 -- função voltar para menu
@@ -54,7 +52,7 @@ local cartasRestantes = 20
 
 local placarText
 local imgRecordes
-local menu 
+local menu
 
 local function efeitoContagem()
 
@@ -229,6 +227,8 @@ local function funcaoMenu()
     display.remove(imagemTenteNovamente)
     display.remove(voltarMenu)
     display.remove(tentarNovamente)
+    display.remove(menu)
+    display.remove(imgRecordes)
     composer.removeScene("game")
     gotoMenu()
 end
@@ -278,7 +278,8 @@ cartasRestantes = cartasRestantes -2
             gotoGame2()
         end)
         else
-          -- A pontuação é menor que 100, então executa a função criarImagemTenteNovamente()
+          -- A pontuação é menor que 100, então executa a função 
+            audio.play(SomGameOver)
             criarImagemTenteNovamente()
         end
     end
@@ -309,6 +310,7 @@ local function checar()
         timer.performWithDelay(3000, function()
             display.remove(selecioneDuasCartas)
             pontos = 0
+            composer.removeScene("game")
             gotoGame()
         end)
     end
@@ -415,17 +417,25 @@ function scene:create(event)
     bg.x = display.contentCenterX
     bg.y = display.contentCenterY 
 
-    menu= display.newImageRect ("imagens/menu.png", 315/2, 96/2)
+    menu = display.newImageRect ("imagens/menu.png", 315/2, 96/2)
     menu.x = 30    menu.y = display.contentCenterY - 90
     menu:addEventListener ("tap", gotoMenu)
+    sceneGroup:insert(menu)
+    menu.alpha = 0
+    transition.to(menu, { time = 3300, alpha = 1})
     
     imgRecordes = display.newImageRect ("imagens/recordes.png", 315/2, 96/2)
     imgRecordes.x = 30
     imgRecordes.y = display.contentCenterY - 40
+    sceneGroup:insert(imgRecordes)
     imgRecordes:addEventListener ("tap", gotoRecordes)
-    
+    imgRecordes.alpha = 0
+    transition.to(imgRecordes, { time = 3300, alpha = 1})
+
     local fundo = display.newImageRect(sceneGroup, "imagens/pontos.png", 315/2, 96/2)
     fundo.x, fundo.y = 30, display.contentCenterY + 80
+    fundo.alpha = 0
+    transition.to(fundo, { time = 3300, alpha = 1})
 
     placarText = display.newText(sceneGroup, " " .. pontos, 75, display.contentCenterY + 80, native.systemFont, 20)
     placarText:setFillColor(0, 0, 0)
@@ -467,14 +477,10 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-        display.remove(menu)
-        display.remove(imgRecordes)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
         composer.removeScene("game")
-       
-
-	end
+    end
 end
 
 -- destroy()

@@ -6,6 +6,7 @@ local SomErro = audio.loadSound ("audio/erro.mp3")
 local SomAcertou = audio.loadSound ("audio/acertou.mp3")
 local SomVirarCarta = audio.loadSound ("audio/virarcarta.mp3")
 local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
+local SomGameOver = audio.loadSound ("audio/gameover.mp3")
 
 local acertos = 0
 
@@ -273,10 +274,11 @@ local function verificarVitoria()
             composer.removeScene("game2")
             display.remove(menu)
             display.remove(imgRecordes)
-                gotoGame3()
+            gotoGame3()
             end)
             else
               -- A pontuação é menor que 100, então executa a função criarImagemTenteNovamente()
+                audio.play(SomGameOver)
                 criarImagemTenteNovamente()
             end
         end
@@ -305,6 +307,7 @@ local function checar()
         timer.performWithDelay(3000, function()
             display.remove(selecioneDuasCartas)
             pontos = 0
+            composer.removeScene("game2")
             gotoGame2()
         end)
     end
@@ -312,10 +315,8 @@ local function checar()
     if #cartasViradas == 2 and virar then
         -- Bloqueia a função de virar cartas temporariamente
         virar = false
-     
         -- Armazena as duas cartas viradas para comparação
         local card1, card2 = cartasViradas[1], cartasViradas[2]
-       
         -- Verifica se as cartas são iguais
 
         local nomeArquivo1 = card1.frenteImagem:match("^.+/(.+)$")
@@ -392,10 +393,6 @@ local function onBoardTap(event)
     checar()
 end
 
-
-
-
-
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -428,16 +425,16 @@ function scene:create(event)
     placarText = display.newText(sceneGroup, " " .. pontos, 5, display.contentCenterY + 80, native.systemFont, 15)
     placarText:setFillColor(0, 0, 0)
 
-    -- tentativasText = display.newText(sceneGroup, " " .. tentativas, 220, 15.5, native.systemFont, 20)
-
-    menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
+    menu = display.newImageRect ("imagens/menu.png", 315/2.5, 96/2.5)
     menu.x = -30   menu.y = display.contentCenterY - 90
     menu:addEventListener ("tap", gotoMenu)
-
-    imgRecordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
+    sceneGroup:insert(menu)
+    
+    imgRecordes = display.newImageRect ("imagens/recordes.png", 315/2.5, 96/2.5)
     imgRecordes.x = -30
     imgRecordes.y = display.contentCenterY - 40
     imgRecordes:addEventListener ("tap", gotoRecordes)
+    sceneGroup:insert(imgRecordes)
 
 end
 
@@ -464,8 +461,6 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
-        display.remove(menu)
-        display.remove(imgRecordes)
 	elseif ( phase == "did" ) then
 	-- Code here runs immediately after the scene goes entirely off screen 
         composer.removeScene("game2")

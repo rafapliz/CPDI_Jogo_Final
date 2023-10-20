@@ -87,14 +87,8 @@ local function pararTemporizador()
         print("Tempo final foi: ", tempoTotal)
       end
 end
-
-
-
-
-
-
-
 --#######################################################
+
 local function efeitoContagem()
     menu:removeEventListener ("tap", gotoMenu)
     imgRecordes:removeEventListener ("tap", gotoRecordes)
@@ -401,9 +395,9 @@ function scene:create(event)
     
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
+    
     audio.play (SomEmbaralhar)
-    print("Recordes inicial: ", recordes)
-
+    
     local bg = display.newImageRect (sceneGroup, "imagens/bg3.png", 1920/2.7, 1080/3.4)
     bg.x = display.contentCenterX -2 
     bg.y = display.contentCenterY 
@@ -412,8 +406,7 @@ function scene:create(event)
     efeitoContagem()
     end) -- Chama a função de contagem regressiva
 
-    timerText = display.newText("00:00", display.contentCenterX-272, 45, native.systemFont, 18)
-    timerText:setFillColor(0,0,0)
+   
 
     tabuleiro = criarTab()
     tabuleiro:addEventListener("tap", onBoardTap)
@@ -429,18 +422,22 @@ function scene:create(event)
 
     -- tentativasText = display.newText(sceneGroup, " " .. tentativas, 220, 15.5, native.systemFont, 20)
 
-    local timerTempo = display.newImageRect (sceneGroup,"imagens/tempo.png", 315/2.5, 96/2.5)
+    local timerTempo = display.newImageRect (sceneGroup, "imagens/tempo.png", 315/2.5, 96/2.5)
     timerTempo.x = -28  timerTempo.y = display.contentCenterY -120
 
+    timerText = display.newText("00:00", display.contentCenterX-272, 45, native.systemFont, 18)
+    timerText:setFillColor(0,0,0)
 
-    menu = display.newImageRect (sceneGroup,"imagens/menu.png", 315/2.5, 96/2.5)
+    menu = display.newImageRect ("imagens/menu.png", 315/2.5, 96/2.5)
     menu.x = -30   menu.y = display.contentCenterY - 70
     menu:addEventListener ("tap", gotoMenu)
+    sceneGroup:insert(menu)
 
     imgRecordes = display.newImageRect (sceneGroup,"imagens/recordes.png", 315/2.5, 96/2.5)
     imgRecordes.x = -30
     imgRecordes.y = display.contentCenterY - 20
     imgRecordes:addEventListener ("tap", gotoRecordes)
+    sceneGroup:insert(imgRecordes)
 
 end
 
@@ -469,8 +466,6 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
         pararTemporizador()
         display.remove(timerText)
-        display.remove(menu)
-        display.remove(imgRecordes)
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
             composer.removeScene("game3")
