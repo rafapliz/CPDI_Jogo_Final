@@ -9,6 +9,9 @@ local SomEmbaralhar = audio.loadSound ("audio/embaralhar.mp3")
 local SomGameOver = audio.loadSound ("audio/gameover.mp3")
 
 local acertos = 0
+
+local toqueHabilitado = true
+
 -- função voltar para menu
 local function gotoGame()
 	composer.gotoScene ("game", {time = 800, effect = "crossFade"})
@@ -25,7 +28,6 @@ local function gotoGame2 ()
 	composer.gotoScene ("game2", {time = 800, effect = "crossFade"})
 end
 
-local jogoEmAndamento = false
 -- Lista de imagens para as cartas
 local cartas = { "card1", "card2", "card3", "card4", "card5", "card6","card7", "card8", "card9", "card10","card11","card12","card13","card14","card15" }
 -- Número de colunas e linhas do tabuleiro
@@ -36,8 +38,7 @@ local distancia = 2
 local larguraCarta, alturaCarta = 75 ,75
 --Variáveis para armazenar as cartas viradas
 local card1, card2
--- Variável para controlar se as cartas podem ser viradas
-local virar = true
+
 -- Variável que representa o tabuleiro de cartas
 local tabuleiro
 -- Variável que representa o numero de pontos
@@ -84,18 +85,26 @@ local function efeitoContagem()
     mostrarImagem(1)
 end
 
-
 local function virarTodasAsCartas()
+    
+    toqueHabilitado = false
+
+    -- Remove os ouvintes de toque de todas as cartas no tabuleiro
     for i = 1, tabuleiro.numChildren do
+    local carta = tabuleiro[i]
+    carta:removeEventListener("tap", carta.touchListener)
+    end
+
+   for i = 1, tabuleiro.numChildren do
         local carta = tabuleiro[i]
         carta:virar()
     end
-    timer.performWithDelay(4200, function()
+        timer.performWithDelay(4200, function()
         for i = 1, tabuleiro.numChildren do
             local carta = tabuleiro[i]
             carta:reset()
         end
-
+       
         local mensagemFase = display.newImageRect("imagens/mensagemFase1.png", 562/1.5, 173/1.5)
         mensagemFase.x = display.contentCenterX
         mensagemFase.y = display.contentCenterY
@@ -104,8 +113,15 @@ local function virarTodasAsCartas()
             display.remove(mensagemFase)
             menu:addEventListener ("tap", gotoMenu)
             imgRecordes:addEventListener ("tap", gotoRecordes)
+            
+        -- Adiciona novamente os ouvintes de toque a todas as cartas no tabuleiro
+            toqueHabilitado = true
+            
+            for i = 1, tabuleiro.numChildren do
+            local carta = tabuleiro[i]
+            carta:addEventListener("tap", carta.touchListener)
+            end
         end)
-
     end)
 end
 
@@ -142,8 +158,8 @@ local function criarCarta(x, y, frenteImagem, atrasImagem)
     function carta:virar()
         if not self.virada then
             self.virada = true
-            
-            transition.to(self, { time = 200, xScale = 0.1, onComplete = function()
+
+                transition.to(self, { time = 200, xScale = 0.1, onComplete = function()
                 back.isVisible = false
                 display.newImageRect(self, self.frenteImagem, larguraCarta, alturaCarta)
                 transition.to(self, { time = 200, xScale = 1 })
@@ -156,12 +172,19 @@ local function criarCarta(x, y, frenteImagem, atrasImagem)
         back.isVisible = true
         display.remove(self[2])
     end
-    -- Adiciona um evento de toque para a carta
-    carta:addEventListener("tap", function(event)
-        audio.play (SomVirarCarta)
-        carta:virar()
-    end)
 
+    -- Adiciona um evento de toque para a carta 
+    local function cartaTapListener(event)
+        if toqueHabilitado then
+            audio.play(SomVirarCarta)
+            carta:virar()
+        end
+    end
+
+    -- Adicione um evento de toque para a carta usando a função de ouvinte personalizada
+    carta.touchListener = cartaTapListener
+    carta:addEventListener("tap", carta.touchListener)
+ 
     return carta
 end
 
@@ -285,10 +308,9 @@ cartasRestantes = cartasRestantes -2
     end
 end
 
-
-
 -- Função para verificar se duas cartas viradas são iguaais
 local function checar()
+    
     -- Cria uma tabela para armazenar as cartas viradas
     local cartasViradas = {}
 
@@ -301,7 +323,7 @@ local function checar()
         end
     end
   
-    if #cartasViradas == 3 and virar then
+    if #cartasViradas == 3 then
         
         local selecioneDuasCartas = display.newImageRect( "imagens/selecione-apenas-2-cartas.png", 1280/3, 720/3)
         selecioneDuasCartas.x = display.contentCenterX
@@ -315,10 +337,15 @@ local function checar()
         end)
     end
     -- Se tiverem duas cartas viradas e a função de virar cartas estiver disponivel
-    if #cartasViradas == 2 and virar then
-        -- Bloqueia a função de virar cartas temporariamente
-        virar = false
-     
+    if #cartasViradas == 2 then
+
+        -- Bloqueia a função de virar cartas temporariamente     
+        toqueHabilitado = false
+        -- Remove os ouvintes de toque de todas as cartas no tabuleiro
+        for i = 1, tabuleiro.numChildren do
+        local carta = tabuleiro[i]
+        carta:removeEventListener("tap", carta.touchListener)
+        end
         -- Armazena as duas cartas viradas para comparação
         local card1, card2 = cartasViradas[1], cartasViradas[2]
        
@@ -326,34 +353,48 @@ local function checar()
 
         local nomeArquivo1 = card1.frenteImagem:match("^.+/(.+)$")
       
-
         local nomeArquivo2 = card2.frenteImagem:match("^.+/(.+)$")
        
-
         local saoIguais = nomeArquivo1 == nomeArquivo2
       
-
         -- Função para reverter as cartas após um intervalo
         local function reverterCartas()
             card1:reset()
             card2:reset()
+        
             -- Libera a função de virar cartas novamente
-            virar = true
+            timer.performWithDelay(100, function()
+            toqueHabilitado = true
+            for i = 1, tabuleiro.numChildren do
+            local carta = tabuleiro[i]
+            carta:addEventListener("tap", carta.touchListener)
+            end end)
+            
         end
-
         if saoIguais then
             -- Se forem iguais, aumenta os pontos e verifica a vitória
             audio.play (SomAcertou)
             acertos = acertos + 1 
             pontos = pontos + 10
             placarText.text = " " .. pontos
+
+            toqueHabilitado = true    
+        
+            timer.performWithDelay(100, function()
+            for i = 1, tabuleiro.numChildren do
+            local carta = tabuleiro[i]
+            carta:addEventListener("tap", carta.touchListener)
+            end end)
+
+
             if acertos == 2 then
         
                 local imagemAcertoPrata = display.newImageRect( "imagens/acerto-prata.png", 503/2.5, 496/2.5)
                 imagemAcertoPrata.x = display.contentCenterX-200
                 imagemAcertoPrata.y = display.contentCenterY
                 pontos = pontos + 5
-                timer.performWithDelay(2000, function()
+                placarText.text = " " .. pontos
+                timer.performWithDelay(1500, function()
                     display.remove(imagemAcertoPrata)
                 end)
             end
@@ -363,7 +404,9 @@ local function checar()
                 imagemAcertoOuro.x = display.contentCenterX-200
                 imagemAcertoOuro.y = display.contentCenterY
                 pontos = pontos + 10
-                timer.performWithDelay(2000, function()
+                placarText.text = " " .. pontos
+
+                timer.performWithDelay(1500, function()
                     display.remove(imagemAcertoOuro)
                 end)
             end
@@ -373,21 +416,16 @@ local function checar()
             timer.performWithDelay(1000, function()
                 display.remove(card1)
                 display.remove(card2)
-                -- Libera a função de virar cartas novamente
-                virar = true
+               
             end)
         else
             audio.play (SomErro)
-            -- Reverte as cartas após um pequeno atraso e diminuir as tentativas
-            timer.performWithDelay(1500, function()
-                reverterCartas()
-                pontos = pontos - 1
-                placarText.text = " " .. pontos
-                acertos = 0
-  
-                virar = true
-            
-            
+            timer.performWithDelay(2500, function()
+            reverterCartas()
+            pontos = pontos - 1
+            placarText.text = " " .. pontos
+            acertos = 0
+                         
             end)
         end
     end
@@ -395,11 +433,10 @@ end
 
 -- Função chamada quando o jogador toca no tabuleiro
 local function onBoardTap(event)
+    if toqueHabilitado then
     checar()
+    end
 end
-
-
-
 
 
 -- -----------------------------------------------------------------------------------
@@ -439,6 +476,8 @@ function scene:create(event)
 
     placarText = display.newText(sceneGroup, " " .. pontos, 75, display.contentCenterY + 80, native.systemFont, 20)
     placarText:setFillColor(0, 0, 0)
+    placarText.alpha = 0
+    transition.to(placarText, { time = 3300, alpha = 1})
 
     tabuleiro = criarTab()
     tabuleiro:addEventListener("tap", onBoardTap)
