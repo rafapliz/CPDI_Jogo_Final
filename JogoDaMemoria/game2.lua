@@ -1,3 +1,5 @@
+native.setProperty("androidSystemUiVisibility", "immersiveSticky")
+
 local composer = require( "composer" )
 
 local scene = composer.newScene()
@@ -130,12 +132,12 @@ local function efeitoContagem()
                     display.remove(imagem)  -- Remove a imagem após o fade-out
                     if i < #contagem then
                         mostrarImagem(i + 1) 
-                   end })
+                    end
+                    end})
             end)
         end })
     end
     mostrarImagem(1)
-    
 end
 
 --Função para criar uma carta com imagem de frente e verso

@@ -1,3 +1,5 @@
+native.setProperty("androidSystemUiVisibility", "immersiveSticky")
+
 local composer = require( "composer" )
 
 local scene = composer.newScene()
@@ -322,21 +324,8 @@ local function checar()
             table.insert(cartasViradas, carta)
         end
     end
-  
-    if #cartasViradas == 3 then
-        
-        local selecioneDuasCartas = display.newImageRect( "imagens/selecione-apenas-2-cartas.png", 1280/3, 720/3)
-        selecioneDuasCartas.x = display.contentCenterX
-        selecioneDuasCartas.y = display.contentCenterY
-
-        timer.performWithDelay(3000, function()
-            display.remove(selecioneDuasCartas)
-            pontos = 0
-            composer.removeScene("game")
-            gotoGame()
-        end)
-    end
-    -- Se tiverem duas cartas viradas e a função de virar cartas estiver disponivel
+    
+-- Se tiverem duas cartas viradas e a função de virar cartas estiver disponivel
     if #cartasViradas == 2 then
 
         -- Bloqueia a função de virar cartas temporariamente     
