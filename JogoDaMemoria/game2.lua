@@ -488,10 +488,11 @@ function scene:hide( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
+        composer.removeScene("game2")
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 	elseif ( phase == "did" ) then
 	-- Code here runs immediately after the scene goes entirely off screen 
-        composer.removeScene("game2")
+        
         
 	end
 end

@@ -477,9 +477,10 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
         pararTemporizador()
         display.remove(timerText)
+        composer.removeScene("game3")
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen 
-            composer.removeScene("game3")
+            
             
 	end
 end
